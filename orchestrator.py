@@ -159,6 +159,8 @@ def import_agents() -> None:
         "agents.scout_intl_cloak",
         "agents.scout_vn",
         "agents.diagnoser",
+        "agents.auditor",
+        "agents.pr_drafter",
         "agents.builder",
         "agents.pitcher",
         "agents.checker",

@@ -23,3 +23,8 @@ Vuln.sol
 *.err
 *.pem
 *.key
+.env*
+audits_targets/
+launch/devto_body.*
+launch/inject_body.js
+launch/_gen_inject.py
