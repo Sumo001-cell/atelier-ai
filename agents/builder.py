@@ -114,8 +114,13 @@ Date: {datetime.utcnow().isoformat()}
 
 
 def build_cover_letter(lead_id: int, title: str, url: str) -> dict:
+    import os as _os
     folder = DELIV_DIR / f"cover_{lead_id}_{_slug(title)}"
     folder.mkdir(parents=True, exist_ok=True)
+    contact_email = _os.getenv("CONTACT_EMAIL", "contact@example.com")
+    github_handle = _os.getenv("GITHUB_HANDLE", "")
+    owner_name = _os.getenv("OWNER_NAME", "")
+    github_line = f"GitHub: https://github.com/{github_handle}" if github_handle else ""
     body = f"""# Cover Letter — {title[:120]}
 
 Hi,
@@ -130,8 +135,8 @@ Recent: shipped AI agent pipelines (Scout/Diagnoser/Builder/Pitcher/Checker) wit
 Available within 7 days. Open to part-time or contract.
 
 Best,
-Bao Nguyen
-${CONTACT_EMAIL}
+{owner_name or "(name configured via env OWNER_NAME)"}
+{contact_email}
 """
     fp = folder / "cover.md"
     fp.write_text(body, encoding="utf-8")
