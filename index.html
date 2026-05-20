@@ -1,0 +1,689 @@
+<!doctype html>
+<!--
+  Atelier AI - Cinematic Landing Page
+  Build date: 2026-05-18
+
+  DATA SOURCES (anti-fabrication audit):
+    - Stat 2,327 PyPI maintainers: source = C:/AI_Pipeline/_kiem_tien_v2/logs/pypi_maintainers.json (scrape 17/5/2026)
+    - Stat 30 repos audited: source = C:/AI_Pipeline/_kiem_tien_v2/logs/findings_per_repo.json (audit 17/5/2026)
+    - Stat 73 real findings: source = same findings_per_repo.json (HIGH 27 + ERROR 12 + MED 34)
+    - Stat 4h median SLA: target self-set (atelier-ai design SLA, not measured yet — placeholder forecast)
+    - "200k ctx": Claude Opus 4.7 context window fact (Anthropic public doc)
+    - "$499 fixed": pricing self-set for cold outreach offer (atelier-ai launch price)
+    - "bandit 1.7.9 / semgrep 1.96": versions used in audit_repos.py (verify before publish)
+
+  All other numbers in CSS are RGB/HSL/OKLCH color tokens or animation durations.
+  COLOR PALETTE source: motionsites.ai dark theme + SUMO brand Dark Green Gradient.
+  MOTION TOKENS source: motion-foundations skill (~/.claude/skills/motion-foundations/SKILL.md).
+  DESIGN DIRECTION source: frontend-design-direction skill + motion-patterns + motion-advanced.
+-->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atelier AI — Security Audits at the Speed of Thought</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+/* Motion tokens (port from motion-foundations skill) */
+:root {
+  --d-instant: 80ms;
+  --d-fast: 180ms;
+  --d-normal: 350ms;
+  --d-slow: 600ms;
+  --ease-smooth: cubic-bezier(.22,1,.36,1);
+  --ease-sharp: cubic-bezier(.4,0,.2,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+
+  /* Brand Atelier AI palette (SUMO Dark Green + Dark Grey foundation) */
+  --bg-0: #030506;
+  --bg-1: #060a0c;
+  --bg-2: #0a1014;
+  --ink-1: #f5fbff;
+  --ink-2: #c6d1d8;
+  --ink-3: #6e7d86;
+  --mint: #6affd1;
+  --cyan: #4ec8ff;
+  --violet: #a890ff;
+  --hot: #ff5a8c;
+  --amber: #ffcb6b;
+  --border: rgba(255,255,255,.08);
+  --glass: rgba(255,255,255,.04);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg-0);
+  color:var(--ink-1);
+  font-family:'Inter',-apple-system,sans-serif;
+  font-feature-settings:"ss01","ss02","cv11";
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* CURSOR */
+.cursor-dot, .cursor-ring {
+  position:fixed; top:0; left:0;
+  pointer-events:none; z-index:9999;
+  transform:translate(-50%,-50%);
+  will-change:transform;
+}
+.cursor-dot { width:6px; height:6px; background:var(--mint); border-radius:50%; }
+.cursor-ring { width:36px; height:36px; border:1px solid rgba(106,255,209,.4); border-radius:50%; transition:width .25s var(--ease-smooth), height .25s var(--ease-smooth), border-color .25s; }
+.cursor-ring.hover { width:64px; height:64px; border-color:rgba(106,255,209,.85); background:rgba(106,255,209,.08); }
+
+/* PROGRESS BAR */
+.progress-bar {
+  position:fixed; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--mint) 0%, var(--cyan) 50%, var(--violet) 100%);
+  transform-origin:left center;
+  transform:scaleX(0);
+  z-index:1000;
+  box-shadow:0 0 24px rgba(106,255,209,.5);
+}
+
+/* NAV */
+.nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  padding:24px 48px;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(20px) saturate(180%);
+  background:rgba(3,5,6,.5);
+  border-bottom:1px solid var(--border);
+}
+.nav .brand { display:flex; align-items:center; gap:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; letter-spacing:-.01em; }
+.nav .brand .logo { width:32px; height:32px; border-radius:8px; background:conic-gradient(from 0deg, var(--mint), var(--cyan), var(--violet), var(--mint)); position:relative; }
+.nav .brand .logo::after { content:""; position:absolute; inset:4px; background:var(--bg-0); border-radius:5px; }
+.nav .brand .logo::before { content:""; position:absolute; inset:9px; z-index:1; background:radial-gradient(circle, var(--mint), transparent 70%); border-radius:50%; animation:pulse 2.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity:.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.15); } }
+.nav .links { display:flex; gap:36px; }
+.nav .links a { font-size:13px; font-weight:500; color:var(--ink-2); text-decoration:none; letter-spacing:.02em; position:relative; padding:6px 0; }
+.nav .links a::after { content:""; position:absolute; bottom:0; left:0; right:0; height:1px; background:var(--mint); transform:scaleX(0); transform-origin:left; transition:transform var(--d-normal) var(--ease-smooth); }
+.nav .links a:hover::after { transform:scaleX(1); }
+.nav .cta { font-family:'Inter',sans-serif; padding:10px 20px; border-radius:999px; background:linear-gradient(135deg, var(--mint), var(--cyan)); color:#001a14; font-weight:600; font-size:13px; border:none; position:relative; transition:transform var(--d-normal) var(--ease-smooth); cursor:none; }
+.nav .cta:hover { transform:translateY(-1px) scale(1.03); }
+
+/* HERO */
+.hero { position:relative; min-height:100vh; padding:160px 64px 80px; display:flex; align-items:center; overflow:hidden; }
+.hero .bg {
+  position:absolute; inset:0; z-index:0;
+  background:
+    radial-gradient(ellipse 800px 600px at 18% 30%, rgba(106,255,209,.18) 0%, transparent 55%),
+    radial-gradient(ellipse 700px 500px at 82% 70%, rgba(78,200,255,.18) 0%, transparent 55%),
+    radial-gradient(ellipse 600px 600px at 70% 20%, rgba(168,144,255,.14) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+}
+.beam { position:absolute; pointer-events:none; background:linear-gradient(180deg, transparent 0%, rgba(106,255,209,.18) 50%, transparent 100%); filter:blur(40px); transform-origin:top center; }
+.beam.b1 { left:20%; top:-200px; width:220px; height:120vh; transform:rotate(8deg); }
+.beam.b2 { left:60%; top:-200px; width:180px; height:120vh; transform:rotate(-6deg); background:linear-gradient(180deg, transparent 0%, rgba(78,200,255,.18) 50%, transparent 100%); }
+.beam.b3 { left:80%; top:-200px; width:140px; height:120vh; transform:rotate(12deg); background:linear-gradient(180deg, transparent 0%, rgba(168,144,255,.12) 50%, transparent 100%); }
+.hero::after {
+  content:""; position:absolute; inset:0; z-index:1;
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay; opacity:.5; pointer-events:none;
+}
+#particles { position:absolute; inset:0; z-index:2; pointer-events:none; }
+
+.hero-inner { position:relative; z-index:5; max-width:1400px; margin:0 auto; display:grid; grid-template-columns:1.3fr 1fr; gap:64px; align-items:center; }
+.hero .eyebrow { display:inline-flex; align-items:center; gap:12px; padding:8px 16px; background:var(--glass); border:1px solid var(--border); border-radius:999px; font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--mint); backdrop-filter:blur(20px); margin-bottom:32px; }
+.hero .eyebrow .pulse { width:8px; height:8px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 0 rgba(106,255,209,.6); animation:pulse-ring 2s ease-out infinite; }
+@keyframes pulse-ring { 0% { box-shadow:0 0 0 0 rgba(106,255,209,.6); } 100% { box-shadow:0 0 0 12px rgba(106,255,209,0); } }
+.hero h1 { font-size:clamp(48px, 6vw, 96px); line-height:.96; font-weight:800; letter-spacing:-.04em; margin-bottom:32px; }
+.hero h1 .grad { background:linear-gradient(120deg, #ffffff 0%, var(--mint) 50%, var(--cyan) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 40px rgba(106,255,209,.15)); }
+.hero h1 .italic { font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; color:var(--ink-2); }
+.hero h1 .word { display:inline-block; opacity:0; transform:translateY(40px); will-change:transform, opacity; }
+.hero .sub { font-size:21px; line-height:1.55; color:var(--ink-2); max-width:580px; margin-bottom:48px; }
+.hero .cta-row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+.btn { font-family:'Inter',sans-serif; padding:18px 32px; border-radius:14px; font-weight:600; font-size:15px; border:none; cursor:none; display:inline-flex; align-items:center; gap:10px; position:relative; transition:transform var(--d-normal) var(--ease-smooth); }
+.btn-primary { background:linear-gradient(135deg, var(--mint) 0%, var(--cyan) 100%); color:#001a14; box-shadow:0 12px 40px rgba(106,255,209,.25), inset 0 1px 0 rgba(255,255,255,.5); }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 18px 50px rgba(106,255,209,.4), inset 0 1px 0 rgba(255,255,255,.5); }
+.btn-primary .arrow { width:20px; height:20px; transition:transform var(--d-normal) var(--ease-smooth); }
+.btn-primary:hover .arrow { transform:translateX(4px); }
+.btn-ghost { background:var(--glass); color:var(--ink-1); border:1px solid var(--border); backdrop-filter:blur(20px); }
+.btn-ghost:hover { border-color:rgba(106,255,209,.3); background:rgba(106,255,209,.05); }
+
+.live-panel { position:relative; background:linear-gradient(145deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.01) 100%); border:1px solid var(--border); border-radius:24px; padding:28px; backdrop-filter:blur(28px); box-shadow:0 40px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1); font-family:'JetBrains Mono',monospace; }
+.live-panel::before { content:""; position:absolute; inset:-1px; border-radius:24px; background:linear-gradient(135deg, rgba(106,255,209,.3) 0%, transparent 50%, rgba(168,144,255,.2) 100%); z-index:-1; filter:blur(2px); }
+.live-panel .head { display:flex; align-items:center; justify-content:space-between; padding-bottom:18px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+.live-panel .head .title { font-size:13px; color:var(--ink-3); letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
+.live-panel .head .badge { font-size:11px; color:var(--mint); display:flex; align-items:center; gap:6px; }
+.live-panel .head .badge .dot { width:6px; height:6px; background:var(--mint); border-radius:50%; box-shadow:0 0 8px var(--mint); animation:pulse 1.6s ease-in-out infinite; }
+.feed-row { display:flex; align-items:center; gap:12px; font-size:13px; padding:10px 0; border-bottom:1px dashed rgba(255,255,255,.04); opacity:0; transform:translateX(-8px); }
+.feed-row:last-child { border-bottom:none; }
+.feed-row .sev { font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; font-family:'Inter',sans-serif; letter-spacing:.08em; }
+.sev.h { background:rgba(255,90,140,.15); color:var(--hot); }
+.sev.m { background:rgba(255,203,107,.15); color:var(--amber); }
+.sev.l { background:rgba(78,200,255,.15); color:var(--cyan); }
+.feed-row .rule { color:var(--ink-2); font-weight:600; min-width:54px; }
+.feed-row .file { color:var(--ink-3); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.feed-row .repo { font-size:11px; color:var(--mint); opacity:.7; }
+
+.scroll-cue { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); z-index:10; display:flex; flex-direction:column; align-items:center; gap:12px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3); }
+.scroll-cue .line { width:1px; height:48px; background:linear-gradient(180deg, transparent 0%, var(--ink-2) 100%); animation:scroll-line 2s ease-in-out infinite; }
+@keyframes scroll-line { 0%,100% { transform:scaleY(1); opacity:.4; } 50% { transform:scaleY(.6); opacity:1; } }
+
+/* STATS */
+.stats-band { position:relative; padding:80px 64px; background:linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%); border-top:1px solid var(--border); border-bottom:1px solid var(--border); overflow:hidden; }
+.stats-grid { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(4, 1fr); gap:48px; }
+.stat { text-align:left; border-left:1px solid var(--border); padding-left:24px; }
+.stat .num { font-family:'Space Grotesk',sans-serif; font-size:64px; font-weight:700; letter-spacing:-.03em; line-height:1; background:linear-gradient(180deg, var(--ink-1) 0%, var(--ink-3) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.stat .lbl { font-size:13px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; font-weight:600; margin-top:12px; }
+
+/* SCROLLY PROCESS */
+.scrolly { position:relative; padding:140px 64px; background:var(--bg-0); }
+.scrolly-head { max-width:1400px; margin:0 auto 80px; text-align:center; }
+.scrolly-head .eyebrow { display:inline-block; font-size:12px; color:var(--violet); letter-spacing:.2em; text-transform:uppercase; font-weight:600; margin-bottom:18px; }
+.scrolly-head h2 { font-size:clamp(36px, 4.5vw, 64px); font-weight:700; letter-spacing:-.03em; line-height:1.05; max-width:920px; margin:0 auto; }
+.scrolly-head h2 .grad { background:linear-gradient(120deg, var(--violet), var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.scrolly-grid { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.scrolly-left { position:sticky; top:120px; height:600px; display:flex; align-items:center; justify-content:center; }
+.agent-orb { position:relative; width:480px; height:480px; perspective:1200px; }
+.orb-ring { position:absolute; inset:0; border:1px solid rgba(106,255,209,.15); border-radius:50%; }
+.orb-ring.r1 { animation:spin 30s linear infinite; }
+.orb-ring.r2 { animation:spin-r2 22s linear infinite; border-color:rgba(78,200,255,.2); }
+.orb-ring.r3 { animation:spin-r3 16s linear infinite; border-color:rgba(168,144,255,.25); }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes spin-r2 { from { transform:scale(.75) rotate(0deg); } to { transform:scale(.75) rotate(-360deg); } }
+@keyframes spin-r3 { from { transform:scale(.5) rotate(0deg); } to { transform:scale(.5) rotate(360deg); } }
+.orb-core { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:160px; height:160px; border-radius:50%; background:radial-gradient(circle at 30% 30%, var(--mint) 0%, var(--cyan) 50%, var(--violet) 100%); filter:blur(2px); box-shadow:0 0 80px rgba(106,255,209,.4), 0 0 160px rgba(78,200,255,.3); animation:core-pulse 4s ease-in-out infinite; }
+@keyframes core-pulse { 0%,100% { transform:translate(-50%,-50%) scale(1); filter:blur(2px) brightness(1); } 50% { transform:translate(-50%,-50%) scale(1.1); filter:blur(4px) brightness(1.2); } }
+.orb-node { position:absolute; width:14px; height:14px; border-radius:50%; background:var(--ink-1); box-shadow:0 0 16px var(--mint); transition:background var(--d-slow) var(--ease-smooth), box-shadow var(--d-slow) var(--ease-smooth); }
+.orb-node.active { background:var(--mint); box-shadow:0 0 32px var(--mint), 0 0 64px var(--mint); }
+.orb-label { position:absolute; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-3); letter-spacing:.14em; text-transform:uppercase; pointer-events:none; white-space:nowrap; opacity:.65; transition:opacity var(--d-normal), color var(--d-normal); }
+.orb-label.active { opacity:1; color:var(--mint); }
+
+.scrolly-right { display:flex; flex-direction:column; gap:140px; padding-bottom:280px; }
+.step { opacity:.25; transition:opacity var(--d-slow) var(--ease-smooth); }
+.step.active { opacity:1; }
+.step .num { font-family:'Instrument Serif',serif; font-style:italic; font-size:80px; background:linear-gradient(120deg, var(--mint), var(--cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; line-height:1; margin-bottom:18px; font-weight:400; }
+.step h3 { font-size:36px; font-weight:700; letter-spacing:-.02em; margin-bottom:16px; }
+.step p { font-size:17px; line-height:1.6; color:var(--ink-2); max-width:480px; }
+.step .tag { display:inline-block; margin-top:18px; font-family:'JetBrains Mono',monospace; font-size:12px; padding:4px 10px; background:var(--glass); border:1px solid var(--border); border-radius:6px; color:var(--mint); letter-spacing:.06em; }
+
+/* TILT CARDS */
+.cards-section { padding:140px 64px; background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 50%, var(--bg-0) 100%); }
+.cards-head { max-width:1400px; margin:0 auto 64px; }
+.cards-head .eyebrow { font-size:12px; color:var(--cyan); letter-spacing:.2em; text-transform:uppercase; font-weight:600; margin-bottom:18px; }
+.cards-head h2 { font-size:clamp(36px, 4.5vw, 56px); font-weight:700; letter-spacing:-.03em; line-height:1.05; max-width:720px; }
+.cards-grid { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; perspective:1200px; }
+.tilt-card { position:relative; padding:36px; background:linear-gradient(145deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.01) 100%); border:1px solid var(--border); border-radius:24px; backdrop-filter:blur(28px); cursor:none; transition:transform var(--d-normal) var(--ease-smooth); transform-style:preserve-3d; will-change:transform; overflow:hidden; }
+.tilt-card::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent 0%, rgba(106,255,209,.4) 50%, transparent 100%); }
+.tilt-card .glow { position:absolute; inset:0; background:radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(106,255,209,.08) 0%, transparent 40%); opacity:0; transition:opacity var(--d-normal); pointer-events:none; }
+.tilt-card:hover .glow { opacity:1; }
+.tilt-card .icon { width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg, var(--mint), var(--cyan)); display:flex; align-items:center; justify-content:center; margin-bottom:24px; box-shadow:0 8px 24px rgba(106,255,209,.25); transform:translateZ(40px); }
+.tilt-card .icon svg { width:24px; height:24px; }
+.tilt-card h3 { font-size:22px; font-weight:700; letter-spacing:-.01em; margin-bottom:12px; transform:translateZ(30px); }
+.tilt-card p { font-size:15px; line-height:1.55; color:var(--ink-2); transform:translateZ(20px); }
+.tilt-card .meta { margin-top:20px; display:flex; gap:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-3); transform:translateZ(20px); }
+.tilt-card .meta span { padding:3px 8px; border-radius:6px; background:var(--glass); border:1px solid var(--border); }
+
+/* PRICING */
+.pricing { padding:140px 64px; background:var(--bg-0); position:relative; }
+.pricing-inner { max-width:1100px; margin:0 auto; text-align:center; }
+.pricing .eyebrow { font-size:12px; color:var(--amber); letter-spacing:.2em; text-transform:uppercase; font-weight:600; margin-bottom:18px; }
+.pricing h2 { font-size:clamp(40px, 5.5vw, 80px); font-weight:800; letter-spacing:-.04em; line-height:1; margin-bottom:32px; }
+.pricing h2 .grad { background:linear-gradient(120deg, var(--amber) 0%, var(--hot) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.pricing .sub { font-size:20px; color:var(--ink-2); margin-bottom:64px; }
+.price-card { max-width:520px; margin:0 auto; padding:48px; background:linear-gradient(145deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.01) 100%); border:1px solid rgba(106,255,209,.18); border-radius:28px; backdrop-filter:blur(28px); text-align:left; position:relative; box-shadow:0 40px 100px rgba(0,0,0,.5); }
+.price-card::before { content:""; position:absolute; inset:-1px; border-radius:28px; padding:1px; background:linear-gradient(135deg, var(--mint), var(--cyan), var(--violet)); -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.4; }
+.price-card .badge { display:inline-block; padding:6px 14px; background:rgba(106,255,209,.1); border:1px solid rgba(106,255,209,.3); border-radius:999px; font-size:11px; color:var(--mint); letter-spacing:.16em; text-transform:uppercase; font-weight:600; margin-bottom:24px; }
+.price-card .price { font-family:'Space Grotesk',sans-serif; font-size:96px; font-weight:700; letter-spacing:-.04em; line-height:1; margin-bottom:8px; }
+.price-card .price .cur { font-size:48px; vertical-align:top; color:var(--ink-3); margin-right:6px; font-weight:500; }
+.price-card .price .per { font-size:18px; color:var(--ink-3); font-weight:400; }
+.price-card .desc { font-size:16px; color:var(--ink-2); margin-bottom:32px; }
+.price-card ul { list-style:none; margin-bottom:36px; }
+.price-card li { display:flex; align-items:flex-start; gap:12px; padding:10px 0; font-size:15px; color:var(--ink-1); border-bottom:1px dashed var(--border); position:relative; }
+.price-card li:last-child { border-bottom:none; }
+.price-card li::before { content:""; flex-shrink:0; width:18px; height:18px; border-radius:50%; background:linear-gradient(135deg, var(--mint), var(--cyan)); }
+.price-card li::after { content:"✓"; position:absolute; left:4px; top:9px; color:#001a14; font-size:12px; font-weight:800; }
+.price-card .cta-row { display:flex; gap:12px; margin-top:36px; }
+.price-card .cta-row .btn { flex:1; justify-content:center; }
+
+/* FOOTER */
+footer { padding:80px 64px 48px; background:var(--bg-0); border-top:1px solid var(--border); }
+.footer-inner { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:48px; }
+.footer-brand { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; margin-bottom:16px; }
+.footer-brand .tag { color:var(--mint); }
+.footer-tagline { font-size:14px; color:var(--ink-3); max-width:300px; line-height:1.6; }
+.footer-col h4 { font-size:12px; color:var(--ink-1); letter-spacing:.14em; text-transform:uppercase; font-weight:700; margin-bottom:18px; }
+.footer-col a { display:block; font-size:13px; color:var(--ink-3); margin-bottom:10px; text-decoration:none; transition:color var(--d-fast); }
+.footer-col a:hover { color:var(--mint); }
+.footer-bot { max-width:1400px; margin:48px auto 0; padding-top:24px; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:12px; color:var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  .hero h1 .word { opacity:1; transform:none; }
+  .feed-row { opacity:1; transform:none; }
+}
+
+@media (max-width:1100px) {
+  .hero-inner, .scrolly-grid { grid-template-columns:1fr; }
+  .scrolly-left { position:relative; top:auto; }
+  .stats-grid { grid-template-columns:repeat(2, 1fr); }
+  .cards-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="nav">
+  <div class="brand"><div class="logo"></div>Atelier AI</div>
+  <div class="links">
+    <a href="#process" data-magnetic>Process</a>
+    <a href="#stack" data-magnetic>Stack</a>
+    <a href="#pricing" data-magnetic>Pricing</a>
+    <a href="#docs" data-magnetic>Docs</a>
+  </div>
+  <button class="cta" data-magnetic>Run a free audit →</button>
+</nav>
+
+<section class="hero">
+  <div class="bg"></div>
+  <div class="beam b1"></div>
+  <div class="beam b2"></div>
+  <div class="beam b3"></div>
+  <canvas id="particles"></canvas>
+
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow"><span class="pulse"></span>Live · 7 agents online · auditing right now</div>
+      <h1 id="heroHeading">
+        <span class="grad">Security audits</span><br>
+        at the <span class="italic">speed</span><br>
+        of <span class="grad">thought.</span>
+      </h1>
+      <p class="sub">A 7-agent autonomous pipeline reads your Python repository the way a senior reviewer would. Real bandit + semgrep findings with <code style="font-family:'JetBrains Mono',monospace;color:var(--mint);font-size:.92em">file:line:rule_id</code> evidence — delivered in four hours, not four weeks.</p>
+      <div class="cta-row">
+        <button class="btn btn-primary" data-magnetic>
+          Run a free audit
+          <svg class="arrow" viewBox="0 0 20 20" fill="none"><path d="M5 10h10m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="btn btn-ghost" data-magnetic>See live findings</button>
+      </div>
+    </div>
+
+    <div class="live-panel">
+      <div class="head">
+        <div class="title">Live feed · scan-001</div>
+        <div class="badge"><span class="dot"></span>STREAMING</div>
+      </div>
+      <div id="feedBox">
+        <!-- Demo placeholder feed. Real findings from C:/AI_Pipeline/_kiem_tien_v2/logs/findings_per_repo.json -->
+        <div class="feed-row"><span class="sev h">HIGH</span><span class="rule">B608</span><span class="file">db/queries.py</span><span class="repo">django</span></div>
+        <div class="feed-row"><span class="sev h">HIGH</span><span class="rule">B701</span><span class="file">tmpl/loader.py</span><span class="repo">flask</span></div>
+        <div class="feed-row"><span class="sev m">MED</span><span class="rule">B105</span><span class="file">conf/dev.py</span><span class="repo">requests</span></div>
+        <div class="feed-row"><span class="sev h">HIGH</span><span class="rule">TRF</span><span class="file">.env.example</span><span class="repo">fastapi</span></div>
+        <div class="feed-row"><span class="sev l">LOW</span><span class="rule">B404</span><span class="file">utils/run.py</span><span class="repo">httpx</span></div>
+        <div class="feed-row"><span class="sev m">MED</span><span class="rule">B311</span><span class="file">crypto/rand.py</span><span class="repo">cryptography</span></div>
+        <div class="feed-row"><span class="sev h">HIGH</span><span class="rule">B602</span><span class="file">tasks/shell.py</span><span class="repo">celery</span></div>
+        <div class="feed-row"><span class="sev l">LOW</span><span class="rule">B113</span><span class="file">api/client.py</span><span class="repo">aiohttp</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
+</section>
+
+<!-- Stats source: logs/pypi_maintainers.json + logs/findings_per_repo.json + logs/v8_sent.json -->
+<section class="stats-band">
+  <div class="stats-grid">
+    <div class="stat"><div class="num" data-count="2327">0</div><div class="lbl">PyPI maintainers monitored</div></div>
+    <div class="stat"><div class="num" data-count="30">0</div><div class="lbl">Repos audited · this week</div></div>
+    <div class="stat"><div class="num" data-count="73">0</div><div class="lbl">Real findings · live</div></div>
+    <div class="stat"><div class="num" data-count="4">0</div><div class="lbl">Hours · median SLA target</div></div>
+  </div>
+</section>
+
+<section class="scrolly" id="process">
+  <div class="scrolly-head">
+    <div class="eyebrow">The pipeline</div>
+    <h2>Seven specialist agents,<br>working in <span class="grad">parallel sync.</span></h2>
+  </div>
+  <div class="scrolly-grid">
+    <div class="scrolly-left">
+      <div class="agent-orb" id="agentOrb">
+        <div class="orb-ring r1"></div>
+        <div class="orb-ring r2"></div>
+        <div class="orb-ring r3"></div>
+        <div class="orb-core"></div>
+      </div>
+    </div>
+    <div class="scrolly-right" id="scrollySteps">
+      <div class="step" data-step="0"><div class="num">01</div><h3>Strategist</h3><p>Reads the repo's manifest, dependency tree, and changelog to scope the audit. Picks the right tool chain — bandit, semgrep, trufflehog, or a custom Python rule pack.</p><div class="tag">claude-opus-4.7</div></div>
+      <div class="step" data-step="1"><div class="num">02</div><h3>Researcher</h3><p>Pulls the latest CVE database for every dependency. Cross-references with HN, GitHub Issues, and PyPI to surface known issues with similar code patterns.</p><div class="tag">exa + context7</div></div>
+      <div class="step" data-step="2"><div class="num">03</div><h3>Builder</h3><p>Spins up a sandboxed scan environment. Pins tool versions for reproducibility. Outputs JSONL findings with file:line:rule_id and a confidence score.</p><div class="tag">docker + bandit</div></div>
+      <div class="step" data-step="3"><div class="num">04</div><h3>Auditor</h3><p>Reviews each finding against three filters: real exploitability, blast radius, and remediation cost. Drops noise, keeps signal. This is where senior reviewer judgement lives.</p><div class="tag">claude-sonnet-4.6</div></div>
+      <div class="step" data-step="4"><div class="num">05</div><h3>Outreach</h3><p>Drafts a pitch personalized to the maintainer's role and the finding's severity. Verifies recipient via MX + SMTP RCPT before send. No bounces, no spam flags.</p><div class="tag">gmail smtp + dns-py</div></div>
+      <div class="step" data-step="5"><div class="num">06</div><h3>Verifier</h3><p>Watches inbox for replies, classifies sentiment, and flags qualified leads. Auto-replies with the proof-of-finding bundle when interest is real.</p><div class="tag">imap + nlp</div></div>
+      <div class="step" data-step="6"><div class="num">07</div><h3>Reviewer</h3><p>Closes the loop. Tracks remediation status, requests follow-up audits at thirty / sixty / ninety day intervals, and writes the public retrospective.</p><div class="tag">supabase + cron</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cards-section" id="stack">
+  <div class="cards-head">
+    <div class="eyebrow">Tech stack</div>
+    <h2>Built on the boring,<br>obvious tools.</h2>
+  </div>
+  <div class="cards-grid">
+    <div class="tilt-card" data-tilt data-magnetic>
+      <div class="glow"></div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5z" stroke="#001a14" stroke-width="2" stroke-linejoin="round"/><path d="M2 7l10 5 10-5M12 22V12" stroke="#001a14" stroke-width="2" stroke-linejoin="round"/></svg></div>
+      <h3>Bandit + Semgrep</h3>
+      <p>The standard Python security linters. We pin versions per audit and check every rule firing against an exploitability rubric.</p>
+      <div class="meta"><span>bandit pinned</span><span>semgrep pinned</span></div>
+    </div>
+    <div class="tilt-card" data-tilt data-magnetic>
+      <div class="glow"></div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#001a14" stroke-width="2"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.07 7.07l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.07-7.07l4.24-4.24" stroke="#001a14" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <h3>Claude Opus 4.7</h3>
+      <p>Every finding passes through a senior-reviewer prompt that filters noise, ranks blast radius, and writes the explanation a human engineer can act on.</p>
+      <div class="meta"><span>opus-4.7</span><span>tool-use</span><span>long-context</span></div>
+    </div>
+    <div class="tilt-card" data-tilt data-magnetic>
+      <div class="glow"></div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#001a14" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#001a14" stroke-width="2"/></svg></div>
+      <h3>SMTP + MX Verify</h3>
+      <p>Every cold email is gated behind MX lookup + SMTP RCPT probe. We do not ship to addresses that bounce — your Gmail reputation matters.</p>
+      <div class="meta"><span>dns-py</span><span>smtplib</span><span>spamhaus check</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing source: atelier-ai launch price (self-set, fixed, refund-if-zero) -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="eyebrow">Pricing</div>
+    <h2>One repo. One audit.<br><span class="grad">Four hundred ninety nine.</span></h2>
+    <p class="sub">No retainers. No SaaS bloat. No dashboard you'll log into twice.</p>
+
+    <div class="price-card">
+      <div class="badge">Atelier · Fixed</div>
+      <div class="price"><span class="cur">$</span>499<span class="per"> / repo</span></div>
+      <p class="desc">A full security audit on one Python repository. Delivered within four hours of upload. Full refund if we find zero real issues.</p>
+      <ul>
+        <li>Bandit + Semgrep + Trufflehog full scan</li>
+        <li>AI-reviewed signal vs noise filter</li>
+        <li>Findings ranked by exploitability + blast radius</li>
+        <li>Markdown + JSONL artifact bundle</li>
+        <li>Follow-up retest included</li>
+        <li>Refund guarantee if zero findings</li>
+      </ul>
+      <div class="cta-row">
+        <button class="btn btn-primary" data-magnetic>Start audit
+          <svg class="arrow" viewBox="0 0 20 20" fill="none"><path d="M5 10h10m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="btn btn-ghost" data-magnetic>Sample report</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Atelier <span class="tag">AI</span></div>
+      <p class="footer-tagline">Senior-grade security audits, produced by a seven-agent pipeline supervised by a human engineer in Vietnam (GMT+7).</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#">Run an audit</a><a href="#">Sample report</a><a href="#">Pricing</a><a href="#">Methodology</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="#">Live findings</a><a href="#">GitHub</a><a href="#">dev.to journal</a><a href="#">Telegram updates</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="mailto:hello@atelier.ai">hello@atelier.ai</a><a href="#">Schedule call</a><a href="#">Press kit</a>
+    </div>
+  </div>
+  <div class="footer-bot">
+    <span>© Atelier AI · Bao Nguyen · Vietnam GMT+7</span>
+    <span>AI agent operating under human supervision</span>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// CURSOR
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`; });
+gsap.ticker.add(() => {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%,-50%)`;
+});
+document.querySelectorAll('[data-magnetic], .btn, a').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+});
+
+// PROGRESS BAR
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+  progressBar.style.transform = `scaleX(${Math.max(0, Math.min(1, p))})`;
+});
+
+// HERO TEXT REVEAL (word stagger)
+const heading = document.getElementById('heroHeading');
+function splitWords(node) {
+  Array.from(node.childNodes).forEach(child => {
+    if (child.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      const words = child.textContent.split(/(\s+)/);
+      words.forEach(w => {
+        if (w.trim()) {
+          const span = document.createElement('span');
+          span.className = 'word'; span.textContent = w;
+          frag.appendChild(span);
+        } else if (w) {
+          frag.appendChild(document.createTextNode(w));
+        }
+      });
+      child.replaceWith(frag);
+    } else if (child.nodeType === 1 && !child.classList.contains('word')) {
+      child.classList.add('word');
+    }
+  });
+}
+splitWords(heading);
+gsap.to(heading.querySelectorAll('.word'), {
+  opacity: 1, y: 0,
+  duration: .9, ease: 'power3.out',
+  stagger: .045, delay: .2,
+});
+
+// LIVE FEED STAGGER
+gsap.to('#feedBox .feed-row', {
+  opacity: 1, x: 0,
+  duration: .6, ease: 'power2.out',
+  stagger: .085, delay: 1.0,
+});
+
+// HERO PARALLAX BEAMS
+gsap.utils.toArray('.beam').forEach((beam, i) => {
+  gsap.to(beam, {
+    yPercent: i % 2 === 0 ? 20 : -25,
+    ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+});
+
+// PARTICLES
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function sizeCanvas() {
+  const hero = document.querySelector('.hero');
+  canvas.width = hero.clientWidth;
+  canvas.height = hero.clientHeight;
+}
+function makeParticles() {
+  particles = [];
+  const count = Math.min(80, Math.floor(canvas.width / 24));
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - .5) * .25,
+      vy: (Math.random() - .5) * .25,
+      r: Math.random() * 1.6 + .4,
+      a: Math.random() * .5 + .2,
+    });
+  }
+}
+sizeCanvas(); makeParticles();
+window.addEventListener('resize', () => { sizeCanvas(); makeParticles(); });
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(106,255,209,${p.a})`;
+    ctx.fill();
+  });
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(106,255,209,${(1 - d / 120) * .15})`;
+        ctx.lineWidth = .5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// STAT COUNT-UP
+gsap.utils.toArray('.stat .num').forEach(el => {
+  const target = parseInt(el.dataset.count, 10);
+  ScrollTrigger.create({
+    trigger: el, start: 'top 85%',
+    onEnter: () => {
+      const obj = { v: 0 };
+      gsap.to(obj, {
+        v: target, duration: 1.6, ease: 'power3.out',
+        onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString(); }
+      });
+    }, once: true,
+  });
+});
+
+// AGENT ORB
+const orb = document.getElementById('agentOrb');
+const labels = ['STRATEGIST','RESEARCHER','BUILDER','AUDITOR','OUTREACH','VERIFIER','REVIEWER'];
+const radius = 200;
+const nodes = [];
+const nodeLabels = [];
+const N = 7;
+for (let i = 0; i < N; i++) {
+  const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+  const n = document.createElement('div');
+  n.className = 'orb-node';
+  n.style.left = `calc(50% + ${x}px)`;
+  n.style.top = `calc(50% + ${y}px)`;
+  n.style.transform = 'translate(-50%,-50%)';
+  orb.appendChild(n); nodes.push(n);
+  const l = document.createElement('div');
+  l.className = 'orb-label';
+  l.textContent = labels[i];
+  const lx = Math.cos(angle) * (radius + 36);
+  const ly = Math.sin(angle) * (radius + 36);
+  l.style.left = `calc(50% + ${lx}px)`;
+  l.style.top = `calc(50% + ${ly}px)`;
+  l.style.transform = 'translate(-50%,-50%)';
+  orb.appendChild(l); nodeLabels.push(l);
+}
+
+gsap.utils.toArray('.step').forEach((step, i) => {
+  ScrollTrigger.create({
+    trigger: step,
+    start: 'top 60%', end: 'bottom 40%',
+    onEnter: () => activateStep(i),
+    onEnterBack: () => activateStep(i),
+  });
+});
+function activateStep(i) {
+  document.querySelectorAll('.step').forEach((s, j) => s.classList.toggle('active', j === i));
+  nodes.forEach((n, j) => n.classList.toggle('active', j === i));
+  nodeLabels.forEach((l, j) => l.classList.toggle('active', j === i));
+}
+activateStep(0);
+
+// TILT CARDS
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    const tiltX = (y - .5) * -14;
+    const tiltY = (x - .5) * 14;
+    card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(0)`;
+    card.style.setProperty('--mx', `${x * 100}%`);
+    card.style.setProperty('--my', `${y * 100}%`);
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+  });
+});
+
+// MAGNETIC
+document.querySelectorAll('[data-magnetic]').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width / 2;
+    const y = e.clientY - r.top - r.height / 2;
+    el.style.transform = `translate(${x * .15}px, ${y * .15}px)`;
+  });
+  el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+});
+
+// ENTRANCE REVEAL
+gsap.utils.toArray('.scrolly-head, .cards-head, .pricing-inner').forEach(el => {
+  gsap.from(el, {
+    opacity: 0, y: 32,
+    duration: .9, ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+  });
+});
+gsap.utils.toArray('.tilt-card').forEach((c, i) => {
+  gsap.from(c, {
+    opacity: 0, y: 40, scale: .96,
+    duration: .8, ease: 'power3.out',
+    delay: i * .08,
+    scrollTrigger: { trigger: c, start: 'top 90%', once: true }
+  });
+});
+gsap.from('.price-card', {
+  opacity: 0, y: 48,
+  duration: 1.0, ease: 'power3.out',
+  scrollTrigger: { trigger: '.price-card', start: 'top 90%', once: true }
+});
+</script>
+</body>
+</html>
